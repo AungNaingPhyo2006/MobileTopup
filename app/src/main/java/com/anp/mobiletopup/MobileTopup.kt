@@ -41,8 +41,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun getCurrentDateTime(): String {
@@ -54,6 +56,18 @@ fun getCurrentDateTime(): String {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
+//    <==================>
+//    val historyDao = MainApplication.historyDatabase.getHistoryDao()
+//
+//    fun addHistory(packageName : String , operatorName: String,price : String,phoneNumber : String){
+//        historyDao.addHistory(History(packageName= packageName ,
+//            operatorName = operatorName,
+//            price = price,
+//            phoneNumber= phoneNumber,
+//            createdAt  = Date.from(Instant.now())))
+//    }
+//    <==================>
+
     val phoneNumberUtil = MyanmarPhoneNumberUtil()
     val operatorName = remember { mutableStateOf("")}
     val phoneNumber = remember { mutableStateOf(TextFieldValue())}
@@ -228,6 +242,7 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                 confirmButton = {
                     TextButton(onClick = {
                         if(operatorName.value.isNotEmpty() && operatorName.value != "Unknown"){
+//                            addHistory(packageName = packageName, operatorName= operatorName.value,price = price.toString(), phoneNumber = phoneNumber.value.text)
                             alertMessage.value = ""
                             showDialog.value = false
                             navController.navigate(Routes.successScreen + "/${packageName}/${price}/${operatorName.value}/${phoneNumber.value.text}")
