@@ -21,11 +21,14 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopupHistory(navController: NavController, modifier: Modifier = Modifier) {
+fun SuccessScreen(navController: NavController, modifier: Modifier = Modifier) {
+    val packageName = navController.currentBackStackEntry?.arguments?.getString("packageName") ?: "Unknown"
+    val price = navController.currentBackStackEntry?.arguments?.getString("price") ?: "0"
+
     Column(modifier = Modifier) {
         // TopAppBar with back arrow and title
         TopAppBar(
-            title = { Text("Topup History") },
+            title = { Text("Success") },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -39,7 +42,9 @@ fun TopupHistory(navController: NavController, modifier: Modifier = Modifier) {
 
         // Rest of the content
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Topup History Screen")
+            Text(text = "Success")
+            Text(text = "Selected Package: $packageName")
+            Text(text = "Price: $price MMK")
             Button(onClick = {
                 navController.navigate(Routes.mobileTopup)
             }) {

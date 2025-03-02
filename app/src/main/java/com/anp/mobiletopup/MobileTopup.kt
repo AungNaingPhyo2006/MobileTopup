@@ -17,11 +17,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -62,9 +64,7 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
     val selectedDataOption = remember { mutableStateOf<Pair<String, Int>?>(null) }
     val showDialog = remember { mutableStateOf(false) }
 //    var selectedAmount by remember { mutableStateOf(0) }
-
 //    var totalBalance =  initAmount - selectedAmount
-
     Column (modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -103,7 +103,10 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                             .background(if (isSelected) Color.Blue else Color.LightGray, shape = RoundedCornerShape(8.dp))
                             .clickable() {
                                 selectedTopupOption.value = packageName to price
-                                selectedDataOption.value = null }
+                                if(selectedTopupOption.value != null) {
+                                    showDialog.value = true
+                                }
+                            }
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -139,6 +142,9 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                             .background(  if (isSelected) Color.Blue else Color.LightGray, shape = RoundedCornerShape(8.dp))
                             .clickable() { selectedDataOption.value = packageName to price
                                 selectedTopupOption.value = null
+                                if(selectedDataOption.value !=null) {
+                                    showDialog.value = true
+                                }
                             }
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
@@ -158,19 +164,57 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = {
-            if (selectedTopupOption.value != null || selectedDataOption.value != null) {
-                showDialog.value = true
-            }
-        }) {
-            Text(text = "Buy")
-        }
+        // Modal Dialog
+        if (showDialog.value) {
 
+            val topupOption = selectedTopupOption.value
+            val dataOption = selectedDataOption.value
+
+            // Use topup option if available, otherwise use data option
+            val packageName = topupOption?.first ?: dataOption?.first ?: "Unknown"
+            val price = topupOption?.second ?: dataOption?.second ?: "0"
+
+            AlertDialog(
+                onDismissRequest = { showDialog.value = false },
+                title = { Text("Confirm Purchase") },
+                text = {
+                    Column {
+                        Text(text = "Selected Package: $packageName")
+                        Text(text = "Price: $price MMK")
+                    }
+//                    Column {
+//                        selectedTopupOption.value?.let { (packageName, price) ->
+//                            Text(text = "Selected Package: $packageName")
+//                            Text(text = "Price: $price MMK")
+//                        }
+//                        selectedDataOption.value?.let { (packageName, price) ->
+//                            Text(text = "Selected Package: $packageName")
+//                            Text(text = "Price: $price MMK")
+//                        }
+//                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDialog.value = false
+                        navController.navigate(Routes.successScreen + "/${packageName}/${price}") // Navigate after purchase
+                    }) {
+                        Text("Confirm")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDialog.value = false
+                        selectedTopupOption.value = null
+                        selectedDataOption.value = null}) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
 
         Button(onClick = {
             navController.navigate(Routes.topupHistory)
         }) {
-            Text( text = "To History")
+            Text( text = "History")
         }
     }
 }
