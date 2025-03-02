@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -40,8 +41,26 @@ import androidx.navigation.NavController
 @Composable
 fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
     val phoneNumber = remember { mutableStateOf(TextFieldValue())}
-    val topUpOptions = listOf(1000, 2000, 3000, 5000, 10000,20000)
+    val topupOptions = listOf(
+        "phoneBill1" to 1000,
+        "phoneBill2" to 2000,
+        "phoneBill3" to 3000,
+        "phoneBill4" to 5000,
+        "phoneBill5" to 10000,
+        "phoneBill6" to 20000
+    )
+    val dataOptions = listOf(
+        "1212 MB" to 999,
+        "2024 MB" to 1999,
+        "3072 MB" to 2999,
+        "5120 MB" to 3999,
+        "10240 MB" to 5999
+    )
+
     val initAmount = 15000
+    val selectedTopupOption = remember { mutableStateOf<Pair<String, Int>?>(null) }
+    val selectedDataOption = remember { mutableStateOf<Pair<String, Int>?>(null) }
+    val showDialog = remember { mutableStateOf(false) }
 //    var selectedAmount by remember { mutableStateOf(0) }
 
 //    var totalBalance =  initAmount - selectedAmount
@@ -50,7 +69,8 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-        Text( text = "Mobile Topup",fontSize = 24.sp, color = Color.Black)
+        Text( text = "Mobile Topup",fontSize = 24.sp, color = Color.Black,
+            fontWeight = FontWeight.Bold)
         Text("Total Amount: ${initAmount} MMK", fontSize = 12.sp, color = Color.Black)
         TextField(
             modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
@@ -62,30 +82,91 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         )
 
+        Spacer(modifier = Modifier.height(16.dp))
 
-        topUpOptions.chunked(3).forEach { rowItems ->
+        Text( text = "Bill",fontSize = 18.sp, color = Color.Black,fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                .fillMaxWidth()
+            .padding(start = 8.dp)
+        )
+        topupOptions.chunked(3).forEach { rowItems ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                rowItems.forEach { amount ->
+                rowItems.forEach { (packageName, price) ->
+                    val isSelected = selectedTopupOption.value == (packageName to price)
                     Box(
                         modifier = Modifier
-                            .weight(1f) // Distributes space equally
+                            .weight(1f)
                             .padding(8.dp)
-                            .background(Color.LightGray, shape = RoundedCornerShape(8.dp))
-                            .clickable {  }
+                            .background(if (isSelected) Color.Blue else Color.LightGray, shape = RoundedCornerShape(8.dp))
+                            .clickable() {
+                                selectedTopupOption.value = packageName to price
+                                selectedDataOption.value = null }
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("$amount MMK", fontSize = 11.sp)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                            Text(text = packageName, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(text = "$price MMK", fontSize = 11.sp,
+                                color = if (isSelected) Color.White else Color.Black)
+                        }
                     }
+                }
+                repeat(3 - rowItems.size) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+        Text( text = "Data",fontSize = 18.sp, color = Color.Black,fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp))
+        dataOptions.chunked(3).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                rowItems.forEach { (packageName, price) ->
+                    val isSelected = selectedDataOption.value == (packageName to price)
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp)
+                            .background(  if (isSelected) Color.Blue else Color.LightGray, shape = RoundedCornerShape(8.dp))
+                            .clickable() { selectedDataOption.value = packageName to price
+                                selectedTopupOption.value = null
+                            }
+                            .padding(8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = packageName, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                                color = if (isSelected) Color.White else Color.Black)
+                            Text(text = "$price MMK", fontSize = 11.sp,
+                               color = if (isSelected) Color.White else Color.Black)
+                        }
+                    }
+                }
+                repeat(3 - rowItems.size) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = {
+            if (selectedTopupOption.value != null || selectedDataOption.value != null) {
+                showDialog.value = true
+            }
+        }) {
+            Text(text = "Buy")
+        }
+
+
         Button(onClick = {
             navController.navigate(Routes.topupHistory)
         }) {
