@@ -32,7 +32,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
                 }
             }
         }
-        composable (Routes.successScreen + "/{packageName}/{price}"){
+        composable (Routes.successScreen + "/{packageName}/{price}/{operatorName}/{phoneNumber}"){
             MobileTopupTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     SuccessScreen(

@@ -24,6 +24,8 @@ import androidx.navigation.NavController
 fun SuccessScreen(navController: NavController, modifier: Modifier = Modifier) {
     val packageName = navController.currentBackStackEntry?.arguments?.getString("packageName") ?: "Unknown"
     val price = navController.currentBackStackEntry?.arguments?.getString("price") ?: "0"
+    val operatorName = navController.currentBackStackEntry?.arguments?.getString("operatorName") ?: "Unknown"
+    val phoneNumber = navController.currentBackStackEntry?.arguments?.getString("phoneNumber") ?: "Unknown"
 
     Column(modifier = Modifier) {
         // TopAppBar with back arrow and title
@@ -40,9 +42,11 @@ fun SuccessScreen(navController: NavController, modifier: Modifier = Modifier) {
             )
         )
 
-        // Rest of the content
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = "Success")
+            Text(text = "Operator Name: $operatorName")
+            Text(text = "Phone Number: $phoneNumber")
+
             Text(text = "Selected Package: $packageName")
             Text(text = "Price: $price MMK")
             Button(onClick = {

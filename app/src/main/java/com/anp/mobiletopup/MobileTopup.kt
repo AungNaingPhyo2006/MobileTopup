@@ -1,6 +1,8 @@
 package com.anp.mobiletopup
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,10 +41,23 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+@RequiresApi(Build.VERSION_CODES.O)
+fun getCurrentDateTime(): String {
+    val current = LocalDateTime.now()
+    val formatter = DateTimeFormatter.ofPattern("dd/MM HH:mm:ss")
+    return current.format(formatter)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
+    val phoneNumberUtil = MyanmarPhoneNumberUtil()
+    val operatorName = remember { mutableStateOf("")}
     val phoneNumber = remember { mutableStateOf(TextFieldValue())}
+    val formattedDateTime = getCurrentDateTime()
     val topupOptions = listOf(
         "phoneBill1" to 1000,
         "phoneBill2" to 2000,
@@ -63,8 +78,12 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
     val selectedTopupOption = remember { mutableStateOf<Pair<String, Int>?>(null) }
     val selectedDataOption = remember { mutableStateOf<Pair<String, Int>?>(null) }
     val showDialog = remember { mutableStateOf(false) }
+    var alertMessage = remember { mutableStateOf("")}
+
 //    var selectedAmount by remember { mutableStateOf(0) }
 //    var totalBalance =  initAmount - selectedAmount
+
+
     Column (modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -75,7 +94,16 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
         TextField(
             modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
             value = phoneNumber.value,
-            onValueChange = {phoneNumber.value = it},
+            onValueChange = {
+                phoneNumber.value = it
+                if (it.text.isNotEmpty()) {
+                    alertMessage.value = ""
+                    operatorName.value = phoneNumberUtil.getTelecomName(it.text)
+                } else {
+                    operatorName.value = ""
+
+                }
+                            },
             label = {Text("Enter Phone Number")},
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
@@ -179,8 +207,12 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                 title = { Text("Confirm Purchase") },
                 text = {
                     Column {
-                        Text(text = "Selected Package: $packageName")
-                        Text(text = "Price: $price MMK")
+                        if(alertMessage.value.isNotEmpty()){
+                            Text(text = alertMessage.value)
+                        }else{
+                            Text(text = "Selected Package: $packageName")
+                            Text(text = "Price: $price MMK")
+                            Text(text = formattedDateTime)}
                     }
 //                    Column {
 //                        selectedTopupOption.value?.let { (packageName, price) ->
@@ -195,8 +227,15 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        showDialog.value = false
-                        navController.navigate(Routes.successScreen + "/${packageName}/${price}") // Navigate after purchase
+                        if(operatorName.value.isNotEmpty() && operatorName.value != "Unknown"){
+                            alertMessage.value = ""
+                            showDialog.value = false
+                            navController.navigate(Routes.successScreen + "/${packageName}/${price}/${operatorName.value}/${phoneNumber.value.text}")
+                        }else{
+                            if( phoneNumber.value.text.isEmpty() ||operatorName.value == "Unknown"){
+                                alertMessage.value = "Please Enter Valid Number!"
+                            }
+                        }
                     }) {
                         Text("Confirm")
                     }
@@ -204,7 +243,9 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                 dismissButton = {
                     TextButton(onClick = { showDialog.value = false
                         selectedTopupOption.value = null
-                        selectedDataOption.value = null}) {
+                        selectedDataOption.value = null
+                        alertMessage.value = ""
+                    }) {
                         Text("Cancel")
                     }
                 }
@@ -215,6 +256,9 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
             navController.navigate(Routes.topupHistory)
         }) {
             Text( text = "History")
+        }
+        if (operatorName.value.isNotEmpty()) {
+            Text("Operator: ${operatorName.value}")
         }
     }
 }
