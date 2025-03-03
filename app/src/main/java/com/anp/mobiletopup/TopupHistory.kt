@@ -3,6 +3,7 @@ package com.anp.mobiletopup
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,10 +46,16 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TopupHistory(navController: NavController , modifier: Modifier = Modifier, viewModel : TodoViewModel) {
-    val todoList by viewModel.todoList.observeAsState()
+    val historyList by viewModel.todoList.observeAsState()
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredList = historyList?.filter { item ->
+        item.operatorName.contains(searchQuery, ignoreCase = true)
+    }
+
     Column (modifier = Modifier){
         TopAppBar(
-            title = { Text("Success") },
+            title = { Text("History") },
             navigationIcon = {
                 IconButton(onClick = { navController.popBackStack() }) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -59,14 +66,20 @@ fun TopupHistory(navController: NavController , modifier: Modifier = Modifier, v
                 titleContentColor = androidx.compose.material3.MaterialTheme.colorScheme.primary,
             )
         )
-        Column (modifier = modifier.fillMaxWidth()) {
-            Spacer(modifier =Modifier.padding(8.dp))
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            label = { Text("Search transactions") },
+            modifier = Modifier.fillMaxWidth().padding(8.dp)
+        )
 
-            todoList?.let {
+        Column (modifier = modifier.fillMaxWidth()) {
+            filteredList?.let {
                 LazyColumn(
                     content = {
                         itemsIndexed(it){ _:Int, item : Todo ->
-                            TodoItem(item = item ,onDelete = {viewModel.deleteTodo(item.id)})
+                            TodoItem(item = item ,onDelete = {viewModel.deleteTodo(item.id)},
+                                onClick = { id -> navController.navigate(Routes.detailPage + "/${id}") })
                         }
                     }
                 )
@@ -80,23 +93,23 @@ fun TopupHistory(navController: NavController , modifier: Modifier = Modifier, v
 }
 
 @Composable
-fun TodoItem(item :Todo , onDelete : ()->Unit) {
+fun TodoItem(item :Todo , onDelete : ()->Unit , onClick: (Int) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()
         .padding(8.dp)
         .clip(RoundedCornerShape(16.dp))
-        .background(Color.Cyan)
-        .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically) {
+        .background(Color.Magenta)
+        .clickable{ onClick(item.id) }
+        .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = SimpleDateFormat("hh:mm a , dd/MM/yy", Locale.ENGLISH).format(item.createdAt)
-                ,fontSize=10.sp,color = Color.Gray
+                ,fontSize=10.sp,color = Color.White
             )
-//            Text(text = item.title, fontSize=20.sp, color = Color.White)
-
-            Text(text = item.operatorName, fontSize=20.sp, color = Color.White)
-            Text(text = item.phoneNumber, fontSize=20.sp, color = Color.White)
-            Text(text = item.packageName, fontSize=20.sp, color = Color.White)
-            Text(text = item.price, fontSize=20.sp, color = Color.White)
+            Text(text = "${item.operatorName} သို့ ပေးချေခြင်း", fontSize=16.sp, color = Color.Yellow)
+//            Text(text = item.phoneNumber, fontSize=20.sp, color = Color.White)
+//            Text(text = item.packageName, fontSize=20.sp, color = Color.White)
+//            Text(text = item.price, fontSize=20.sp, color = Color.White)
         }
         IconButton(onClick = onDelete) {
             Icon(painter = painterResource(id = R.drawable.baseline_delete_24), contentDescription = "Delete",

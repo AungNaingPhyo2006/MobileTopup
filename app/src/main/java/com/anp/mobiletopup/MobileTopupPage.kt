@@ -2,6 +2,7 @@ package com.anp.mobiletopup
 
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -44,6 +46,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.coroutines.coroutineContext
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun getCurrentDateTime(): String {
@@ -56,26 +59,30 @@ fun getCurrentDateTime(): String {
 @Composable
 fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , viewModel: TodoViewModel) {
     val phoneNumberUtil = MyanmarPhoneNumberUtil()
-    val operatorName = remember { mutableStateOf("")}
-    val phoneNumber = remember { mutableStateOf(TextFieldValue())}
+//    val phoneNumber = remember { mutableStateOf(TextFieldValue())}
     val formattedDateTime = getCurrentDateTime()
     val topupOptions = listOf(
-        "phoneBill1" to 1000,
-        "phoneBill2" to 2000,
-        "phoneBill3" to 3000,
-        "phoneBill4" to 5000,
-        "phoneBill5" to 10000,
-        "phoneBill6" to 20000
+        "Air Time Topup" to 1000,
+        "Air Time Topup" to 2000,
+        "Air Time Topup" to 3000,
+        "Air Time Topup" to 5000,
+        "Air Time Topup" to 10000,
+        "Air Time Topup" to 20000
     )
     val dataOptions = listOf(
-        "1212 MB" to 999,
-        "2024 MB" to 1999,
-        "3072 MB" to 2999,
-        "5120 MB" to 3999,
-        "10240 MB" to 5999
+        "Shal Plan (1212 MB)" to 999,
+        "Shal Plan (2024 MB)" to 1999,
+        "Shal Plan (3072 MB)" to 2999,
+        "Shal Plan (5120 MB)" to 3999,
+        "Shal Plan (10240 MB)" to 5999
     )
 
-    val initAmount = 15000
+    val remainingBalance = viewModel.remainingBalance
+    val rechargeNumber = viewModel.rechargeNumber
+    val phoneNumber = remember { mutableStateOf(TextFieldValue(rechargeNumber.value ?: "")) }
+    val rechargeOperator = viewModel.rechargeOperator
+    val operatorName = remember { mutableStateOf(rechargeOperator.value ?: "")}
+
     val selectedTopupOption = remember { mutableStateOf<Pair<String, Int>?>(null) }
     val selectedDataOption = remember { mutableStateOf<Pair<String, Int>?>(null) }
     val showDialog = remember { mutableStateOf(false) }
@@ -89,9 +96,10 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(16.dp))
+//        Text( text = rechargeNumber.value,fontSize = 24.sp, color = Color.Black)
         Text( text = "Mobile Topup",fontSize = 24.sp, color = Color.Black,
             fontWeight = FontWeight.Bold)
-        Text("Total Amount: ${initAmount} MMK", fontSize = 12.sp, color = Color.Black)
+        Text("Total Amount: ${remainingBalance.value}  MMK", fontSize = 12.sp, color = Color.Black)
         TextField(
             modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
             value = phoneNumber.value,
@@ -109,11 +117,23 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Gray,
+                errorContainerColor = Color.Red,
+            ),
         )
-
+        if (operatorName.value.isNotEmpty()) {
+            Text(text="Operator: ${operatorName.value}",
+                fontSize = 11.sp, color = Color.Black,fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 8.dp))
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text( text = "Bill",fontSize = 18.sp, color = Color.Black,fontWeight = FontWeight.Bold,
+        Text( text = "Air Time Topup",fontSize = 18.sp, color = Color.Black,fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp)
@@ -140,9 +160,8 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//                            Text(text = packageName, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                            Text(text = "$price MMK", fontSize = 11.sp,
-                                color = if (isSelected) Color.White else Color.Black)
+                            Text(text = "$price MMK", fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                                color = if (isSelected) Color.White else Color.DarkGray)
                         }
                     }
                 }
@@ -153,7 +172,7 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        Text( text = "Data",fontSize = 18.sp, color = Color.Black,fontWeight = FontWeight.Bold,
+        Text( text = "Data Plan",fontSize = 18.sp, color = Color.Black,fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp))
@@ -180,9 +199,9 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(text = packageName, fontSize = 12.sp, fontWeight = FontWeight.Bold,
-                                color = if (isSelected) Color.White else Color.Black)
+                                color = if (isSelected) Color.White else Color.Blue)
                             Text(text = "$price MMK", fontSize = 11.sp,
-                                color = if (isSelected) Color.White else Color.Black)
+                                color = if (isSelected) Color.White else Color.DarkGray)
                         }
                     }
                 }
@@ -205,35 +224,120 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
 
             AlertDialog(
                 onDismissRequest = { showDialog.value = false },
-                title = { Text("Confirm Purchase") },
+                title = {  Text(
+                    text = "Confirm Purchase",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF6200EE)
+                ) },
                 text = {
-                    Column {
+                    Column (
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
                         if(alertMessage.value.isNotEmpty()){
-                            Text(text = alertMessage.value)
+                            Text(
+                                text = alertMessage.value,
+                                fontSize = 16.sp,
+                                color = Color.Red,
+                                fontWeight = FontWeight.Medium
+                            )
                         }else{
-                            Text(text = "Selected Package: $packageName")
-                            Text(text = "Price: $price MMK")
-                            Text(text = formattedDateTime)}
+                            if(operatorName.value.isNotEmpty() && operatorName.value != "Unknown"  || rechargeNumber.value.isNotEmpty()){
+                                Row {
+                                    Text(
+                                        text = "Operator Name: ",
+                                        color = Color.Gray ,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = operatorName.value,
+                                        color = Color.Blue
+                                    )
+
+                                }
+                                Row {
+                                    Text(
+                                        text = "Phone number: ",
+                                        color = Color.Gray,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = phoneNumber.value.text,
+                                        color = Color.Blue
+                                    )
+
+                                }
+                                Row {
+                                    Text(
+                                        text = "Package Name: ",
+                                        color = Color.Gray ,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = packageName,
+                                        color = Color.Blue
+                                    )
+
+                                }
+                                Row {
+                                    Text(
+                                        text = "Package Price: ",
+                                        color = Color.Gray ,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = price.toString() + "MMK",
+                                        color = Color.Blue
+                                    )
+
+                                }
+                                Text(
+                                    text = "Purchase Date: $formattedDateTime",
+                                    color = Color.Blue,
+                                    fontSize = 11.sp,
+                                )
+                            }else{
+                                Text(
+                                    text = "Please Enter Valid Number!",
+                                    fontSize = 16.sp,
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+
+
+                        }
+
                     }
 
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        if(operatorName.value.isNotEmpty() && operatorName.value != "Unknown"){
-                            viewModel.addTodo(
-                                packageName = packageName,
-                                operatorName = operatorName.value,
-                                price = price.toString(),
-                                phoneNumber = phoneNumber.value.text
-                            )
-                            alertMessage.value = ""
-                            showDialog.value = false
-                            navController.navigate(Routes.successScreen + "/${packageName}/${price}/${operatorName.value}/${phoneNumber.value.text}")
-                        }else{
-                            if( phoneNumber.value.text.isEmpty() ||operatorName.value == "Unknown"){
-                                alertMessage.value = "Please Enter Valid Number!"
+                        val purchasePrice = topupOption?.second ?: dataOption?.second ?: 0
+                        if (remainingBalance.value >= purchasePrice){
+                            remainingBalance.value -= purchasePrice
+                            if(operatorName.value.isNotEmpty() && operatorName.value != "Unknown" ){
+                                viewModel.addTodo(
+                                    packageName = packageName,
+                                    operatorName = operatorName.value,
+                                    price = price.toString(),
+                                    phoneNumber = phoneNumber.value.text
+                                )
+                                alertMessage.value = ""
+                                showDialog.value = false
+                                navController.navigate(Routes.successScreen + "/${packageName}/${price}/${operatorName.value}/${phoneNumber.value.text}")
+                            }else{
+                                if( phoneNumber.value.text.isEmpty() ||operatorName.value == "Unknown" || rechargeNumber.value.isEmpty()){
+                                    alertMessage.value = "Please Enter Valid Number!"
+                                }
                             }
+                        }else{
+                            alertMessage.value = "Insufficient balance!"
                         }
+
+
                     }) {
                         Text("Confirm")
                     }
@@ -254,9 +358,6 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
             navController.navigate(Routes.topupHistory)
         }) {
             Text( text = "History")
-        }
-        if (operatorName.value.isNotEmpty()) {
-            Text("Operator: ${operatorName.value}")
         }
     }
 }

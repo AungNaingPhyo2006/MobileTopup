@@ -2,6 +2,7 @@ package com.anp.mobiletopup
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -15,6 +16,9 @@ import java.util.Date
 class TodoViewModel : ViewModel() {
     val todoDao = MainApplication.todoDatabase.getTodoDao()
     var todoList : LiveData<List<Todo>> = todoDao.getAllTodo()
+    var remainingBalance = mutableStateOf(15000)
+    var rechargeNumber= mutableStateOf("")
+    var rechargeOperator= mutableStateOf("")
 
     @RequiresApi(Build.VERSION_CODES.O)
 
@@ -37,5 +41,11 @@ class TodoViewModel : ViewModel() {
             todoDao.deleteTodo(id)
         }
     }
+
+    fun getTodoById(id: Int): LiveData<Todo> {
+        return todoDao.getTodoById(id)
+    }
+
+
 
 }

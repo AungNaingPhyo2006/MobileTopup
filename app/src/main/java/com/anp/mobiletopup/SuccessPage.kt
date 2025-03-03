@@ -26,6 +26,8 @@ fun SuccessPage(navController: NavController, modifier: Modifier = Modifier,view
     val price = navController.currentBackStackEntry?.arguments?.getString("price") ?: "0"
     val operatorName = navController.currentBackStackEntry?.arguments?.getString("operatorName") ?: "Unknown"
     val phoneNumber = navController.currentBackStackEntry?.arguments?.getString("phoneNumber") ?: "Unknown"
+    val rechargeNumber = viewModel.rechargeNumber
+    val rechargeOperator = viewModel.rechargeOperator
 
     Column(modifier = Modifier) {
         // TopAppBar with back arrow and title
@@ -51,8 +53,10 @@ fun SuccessPage(navController: NavController, modifier: Modifier = Modifier,view
             Text(text = "Price: $price MMK")
             Button(onClick = {
                 navController.navigate(Routes.mobileTopup)
+                rechargeNumber.value = ""
+                rechargeOperator.value = ""
             }) {
-                Text(text = "To Mobile Topup")
+                Text(text = "အဆင်ပြေသည်")
             }
         }
     }

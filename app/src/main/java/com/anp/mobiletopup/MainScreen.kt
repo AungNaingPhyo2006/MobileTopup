@@ -38,6 +38,13 @@ fun MainScreen(todoViewModel: TodoViewModel) {
                 TopupHistory(navController , modifier = Modifier.padding(innerPadding), todoViewModel)
             }
         }
+        composable(Routes.detailPage + "/{id}") {
+            Scaffold(
+                modifier = Modifier.fillMaxSize(),
+            ) { innerPadding ->
+                DetailPage(navController , modifier = Modifier.padding(innerPadding), todoViewModel)
+            }
+        }
     }
     )
 
