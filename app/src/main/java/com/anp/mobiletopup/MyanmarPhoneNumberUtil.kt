@@ -1,7 +1,5 @@
 package com.anp.mobiletopup
 
-// MyanmarPhoneNumberUtil.kt
-
 class MyanmarPhoneNumberUtil {
 
     private val myanmarNumbers = mapOf(

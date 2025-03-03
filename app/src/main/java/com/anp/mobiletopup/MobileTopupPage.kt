@@ -40,11 +40,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import java.time.Instant
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun getCurrentDateTime(): String {
@@ -55,19 +54,7 @@ fun getCurrentDateTime(): String {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
-//    <==================>
-//    val historyDao = MainApplication.historyDatabase.getHistoryDao()
-//
-//    fun addHistory(packageName : String , operatorName: String,price : String,phoneNumber : String){
-//        historyDao.addHistory(History(packageName= packageName ,
-//            operatorName = operatorName,
-//            price = price,
-//            phoneNumber= phoneNumber,
-//            createdAt  = Date.from(Instant.now())))
-//    }
-//    <==================>
-
+fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , viewModel: TodoViewModel) {
     val phoneNumberUtil = MyanmarPhoneNumberUtil()
     val operatorName = remember { mutableStateOf("")}
     val phoneNumber = remember { mutableStateOf(TextFieldValue())}
@@ -117,7 +104,7 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                     operatorName.value = ""
 
                 }
-                            },
+            },
             label = {Text("Enter Phone Number")},
             shape = RoundedCornerShape(8.dp),
             singleLine = true,
@@ -127,9 +114,9 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text( text = "Bill",fontSize = 18.sp, color = Color.Black,fontWeight = FontWeight.Bold,
-                modifier = Modifier
+            modifier = Modifier
                 .fillMaxWidth()
-            .padding(start = 8.dp)
+                .padding(start = 8.dp)
         )
         topupOptions.chunked(3).forEach { rowItems ->
             Row(
@@ -195,7 +182,7 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                             Text(text = packageName, fontSize = 12.sp, fontWeight = FontWeight.Bold,
                                 color = if (isSelected) Color.White else Color.Black)
                             Text(text = "$price MMK", fontSize = 11.sp,
-                               color = if (isSelected) Color.White else Color.Black)
+                                color = if (isSelected) Color.White else Color.Black)
                         }
                     }
                 }
@@ -228,21 +215,17 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier) {
                             Text(text = "Price: $price MMK")
                             Text(text = formattedDateTime)}
                     }
-//                    Column {
-//                        selectedTopupOption.value?.let { (packageName, price) ->
-//                            Text(text = "Selected Package: $packageName")
-//                            Text(text = "Price: $price MMK")
-//                        }
-//                        selectedDataOption.value?.let { (packageName, price) ->
-//                            Text(text = "Selected Package: $packageName")
-//                            Text(text = "Price: $price MMK")
-//                        }
-//                    }
+
                 },
                 confirmButton = {
                     TextButton(onClick = {
                         if(operatorName.value.isNotEmpty() && operatorName.value != "Unknown"){
-//                            addHistory(packageName = packageName, operatorName= operatorName.value,price = price.toString(), phoneNumber = phoneNumber.value.text)
+                            viewModel.addTodo(
+                                packageName = packageName,
+                                operatorName = operatorName.value,
+                                price = price.toString(),
+                                phoneNumber = phoneNumber.value.text
+                            )
                             alertMessage.value = ""
                             showDialog.value = false
                             navController.navigate(Routes.successScreen + "/${packageName}/${price}/${operatorName.value}/${phoneNumber.value.text}")

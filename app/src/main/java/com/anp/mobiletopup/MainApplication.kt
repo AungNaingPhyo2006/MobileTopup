@@ -2,18 +2,18 @@ package com.anp.mobiletopup
 
 import android.app.Application
 import androidx.room.Room
-import com.anp.mobiletopup.db.HistoryDataBase
+import com.anp.mobiletopup.db.TodoDatabase
 
-class MainApplication : Application() {
+class MainApplication : Application(){
     companion object{
-        lateinit var historyDataBase: HistoryDataBase
+        lateinit var todoDatabase :TodoDatabase
     }
     override fun onCreate(){
         super.onCreate()
-        historyDataBase =  Room.databaseBuilder(
+        todoDatabase =  Room.databaseBuilder(
             applicationContext,
-            HistoryDataBase::class.java,
-            HistoryDataBase.NAME
+            TodoDatabase::class.java,
+            TodoDatabase.NAME
         ).build()
 
 
