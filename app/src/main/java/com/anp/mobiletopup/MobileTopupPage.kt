@@ -59,7 +59,6 @@ fun getCurrentDateTime(): String {
 @Composable
 fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , viewModel: TodoViewModel) {
     val phoneNumberUtil = MyanmarPhoneNumberUtil()
-//    val phoneNumber = remember { mutableStateOf(TextFieldValue())}
     val formattedDateTime = getCurrentDateTime()
     val topupOptions = listOf(
         "Air Time Topup" to 1000,
@@ -88,15 +87,10 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
     val showDialog = remember { mutableStateOf(false) }
     var alertMessage = remember { mutableStateOf("")}
 
-//    var selectedAmount by remember { mutableStateOf(0) }
-//    var totalBalance =  initAmount - selectedAmount
-
-
     Column (modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-//        Text( text = rechargeNumber.value,fontSize = 24.sp, color = Color.Black)
         Text( text = "Mobile Topup",fontSize = 24.sp, color = Color.Black,
             fontWeight = FontWeight.Bold)
         Text("Total Amount: ${remainingBalance.value}  MMK", fontSize = 12.sp, color = Color.Black)
@@ -212,6 +206,7 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
         // Modal Dialog
         if (showDialog.value) {
 
