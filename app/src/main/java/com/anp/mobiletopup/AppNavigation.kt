@@ -11,7 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.anp.mobiletopup.ui.theme.MobileTopupTheme
 
 @Composable
-fun AppNavigation(modifier: Modifier = Modifier) {
+fun AppNavigation(historyViewModel: HistoryViewModel) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = Routes.mobileTopup, builder = {
         composable (Routes.mobileTopup){
@@ -27,7 +27,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             MobileTopupTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     TopupHistory(
-                        navController, modifier = Modifier.padding(innerPadding)
+                       historyViewModel, navController, modifier = Modifier.padding(innerPadding)
                     )
                 }
             }

@@ -5,14 +5,14 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class HistoryViewModel : ViewModel() {
-    private var _historyList = MutableLiveData<List<History>>()
-    val historyList : LiveData<List<History>> = _historyList
+    val historyDao = MainApplication.historyDataBase.getHistoryDao()
+    var historyList : LiveData<List<History>> = historyDao.getHistory()
 
-    fun getAllHistory(): List<History> {
-        return historyList.value = HistoryManager.getAllHistory()
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun addHistory(
@@ -21,7 +21,9 @@ class HistoryViewModel : ViewModel() {
         price : String,
         phoneNumber : String,
     ){
-        HistoryManager.addHistory(packageName,operatorName,price,phoneNumber)
-        getAllHistory()
+        viewModelScope.launch(Dispatchers.IO){
+            historyDao.addHistory(History(packageName,operatorName,price,phoneNumber))
+        }
+
     }
 }

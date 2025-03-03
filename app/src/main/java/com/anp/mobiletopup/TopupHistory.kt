@@ -36,9 +36,9 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopupHistory(navController: NavController, modifier: Modifier = Modifier, viewModel: HistoryViewModel) {
+fun TopupHistory(historyViewModel:HistoryManager,navController: NavController, modifier: Modifier = Modifier, viewModel: HistoryViewModel) {
 
-    val historyList by viewModel.historyList.observeAsState()
+//    val historyList by historyViewModel.historyList.observeAsState()
 
     Column(modifier = Modifier) {
         // TopAppBar with back arrow and title
