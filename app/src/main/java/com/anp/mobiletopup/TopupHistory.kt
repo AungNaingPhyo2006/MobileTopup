@@ -2,6 +2,9 @@ package com.anp.mobiletopup
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +32,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -92,7 +98,7 @@ fun TopupHistory(navController: NavController , modifier: Modifier = Modifier, v
                     }
                 )
             }?: Text(modifier = Modifier.fillMaxWidth().padding(8.dp),
-                fontSize = 20.sp,
+                fontSize = 20.sp,color= Color.Red,
                 textAlign = TextAlign.Center,text = "No Items yet!")
 
         }
@@ -102,10 +108,24 @@ fun TopupHistory(navController: NavController , modifier: Modifier = Modifier, v
 
 @Composable
 fun TodoItem(item: Todo, onDelete: () -> Unit, onClick: (Int) -> Unit) {
+    var isRotated by remember { mutableStateOf(false) }
+    val rotationAngle by animateFloatAsState(
+        targetValue = if (isRotated) 360f else 0f,
+        animationSpec = tween(durationMillis = 800, easing = LinearOutSlowInEasing),
+        label = "rotation"
+    )
+
+    LaunchedEffect(isRotated) {
+        if (isRotated) {
+            delay(1000)
+            isRotated = false
+        }
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp)
+            .padding(8.dp)
             .clickable { onClick(item.id) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -134,39 +154,18 @@ fun TodoItem(item: Todo, onDelete: () -> Unit, onClick: (Int) -> Unit) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            IconButton(onClick = onDelete) {
+            IconButton(onClick = {
+                isRotated = !isRotated
+                onDelete()
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_delete_24),
                     contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.error
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.rotate(rotationAngle)
                 )
             }
         }
     }
 }
 
-//@Composable
-//fun TodoItem(item :Todo , onDelete : ()->Unit , onClick: (Int) -> Unit) {
-//    Row(modifier = Modifier.fillMaxWidth()
-//        .padding(8.dp)
-//        .clip(RoundedCornerShape(16.dp))
-//        .background(Color.Magenta)
-//        .clickable{ onClick(item.id) }
-//        .padding(8.dp),
-//        verticalAlignment = Alignment.CenterVertically
-//    ) {
-//        Column(modifier = Modifier.weight(1f)) {
-//            Text(text = SimpleDateFormat("hh:mm a , dd/MM/yy", Locale.ENGLISH).format(item.createdAt)
-//                ,fontSize=10.sp,color = Color.White
-//            )
-//            Text(text = "${item.operatorName} သို့ ပေးချေခြင်း",
-//                fontSize = 16.sp,
-//                fontWeight = FontWeight.Medium,
-//                color = MaterialTheme.colorScheme.onSurfaceVariant)
-//        }
-//        IconButton(onClick = onDelete) {
-//            Icon(painter = painterResource(id = R.drawable.baseline_delete_24), contentDescription = "Delete",
-//                tint = Color.White)
-//        }
-//    }
-//}

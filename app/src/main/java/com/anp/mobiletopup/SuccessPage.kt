@@ -44,7 +44,6 @@ fun SuccessPage(navController: NavController, modifier: Modifier = Modifier,view
     val rechargeOperator = viewModel.rechargeOperator
 
     Column(modifier = Modifier) {
-        // TopAppBar with back arrow and title
         TopAppBar(
             title = { Text("Success") },
             navigationIcon = {
@@ -78,7 +77,7 @@ fun SuccessPage(navController: NavController, modifier: Modifier = Modifier,view
             )
             DetailRow(label = "Operator Name", value = operatorName)
             DetailRow(label = "Phone Number", value = phoneNumber)
-            DetailRow(label = "Selected Package", value = packageName)
+            DetailRow(label = "Package", value = packageName)
             DetailRow(label = "Price", value = "$price MMK")
             Spacer(modifier = Modifier.height(32.dp))
             Button(
@@ -98,13 +97,7 @@ fun SuccessPage(navController: NavController, modifier: Modifier = Modifier,view
             ) {
                 Text(text = "အဆင်ပြေသည်", fontSize = 16.sp)
             }
-//            Button(onClick = {
-//                navController.navigate(Routes.mobileTopup)
-//                rechargeNumber.value = ""
-//                rechargeOperator.value = ""
-//            }) {
-//                Text(text = "အဆင်ပြေသည်")
-//            }
+
         }
     }
 }

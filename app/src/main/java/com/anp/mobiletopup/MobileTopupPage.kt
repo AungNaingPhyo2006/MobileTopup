@@ -91,9 +91,9 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(16.dp))
-        Text( text = "Mobile Topup",fontSize = 24.sp, color = Color.Black,
+        Text( text = "Mobile Topup",fontSize = 24.sp, color = Color.DarkGray,
             fontWeight = FontWeight.Bold)
-        Text("Total Amount: ${remainingBalance.value}  MMK", fontSize = 12.sp, color = Color.Black)
+        Text("Total Amount: ${remainingBalance.value}  MMK", fontSize = 12.sp, color = Color.Magenta)
         TextField(
             modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
             value = phoneNumber.value,
@@ -191,11 +191,17 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
                             .padding(8.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
                             Text(text = packageName, fontSize = 12.sp, fontWeight = FontWeight.Bold,
-                                color = if (isSelected) Color.White else Color.Blue)
+                                color = if (isSelected) Color.White else Color.Blue,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp))
                             Text(text = "$price MMK", fontSize = 11.sp,
-                                color = if (isSelected) Color.White else Color.DarkGray)
+                                color = if (isSelected) Color.White else Color.DarkGray,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(start = 8.dp))
                         }
                     }
                 }
@@ -312,8 +318,8 @@ fun MobileTopup(navController: NavController,modifier: Modifier = Modifier , vie
                     TextButton(onClick = {
                         val purchasePrice = topupOption?.second ?: dataOption?.second ?: 0
                         if (remainingBalance.value >= purchasePrice){
-                            remainingBalance.value -= purchasePrice
                             if(operatorName.value.isNotEmpty() && operatorName.value != "Unknown" ){
+                                remainingBalance.value -= purchasePrice
                                 viewModel.addTodo(
                                     packageName = packageName,
                                     operatorName = operatorName.value,
